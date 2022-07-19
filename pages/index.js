@@ -1,8 +1,8 @@
 import Head from "next/head"
-
+import { ConnectButton } from "@rainbow-me/rainbowkit"
 export default function Home() {
   return (
-    <div>
+    <div className="bg-black min-h-screen flex flex-col">
       <Head>
         <title>Sonic el jeshejojo</title>
         <meta
@@ -11,8 +11,10 @@ export default function Home() {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
-      <main className="bg-black min-h-screen flex items-center justify-center">
+      <header className="flex justify-end p-4">
+        <ConnectButton />
+      </header>
+      <main className="flex flex-grow items-center justify-center">
         <div className="text-white text-5xl">
           <strong>HOLA 👋</strong>
         </div>
