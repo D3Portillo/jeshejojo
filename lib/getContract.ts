@@ -26,7 +26,7 @@ const CURRENT_CHAIN_NAME = (() => {
     default:
       return "goerli"
   }
-})() as "localhost"
+})() as "goerli"
 
 console.debug({ CURRENT_CHAIN_NAME })
 const CONTRACT_LIST = CONTRACTS[CURRENT_CHAIN_NAME]
