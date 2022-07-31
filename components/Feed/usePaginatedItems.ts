@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { BigNumber, utils } from "ethers"
 import getContract from "@/lib/getContract"
 
-const formatColor = (bytesColor: string) => "#" + utils.toUtf8String(bytesColor)
+const formatColor = (bytes: string = "") => `#${utils.toUtf8String(bytes)}`
 const MeinJokes = getContract("MeinJokes")
 const ZERO = BigNumber.from(0)
 const PAGE_SIZE = 10
@@ -51,7 +51,7 @@ function usePaginatedItems(
     Promise.all(
       ids.map((id) =>
         MeinJokes.getItemById(id).then(
-          ({ author, bgColor, content, owner, textColor }) => ({
+          ({ author, bgColor, content, owner, textColor }: Partial<Item>) => ({
             author,
             bgColor: formatColor(bgColor),
             textColor: formatColor(textColor),
@@ -65,7 +65,7 @@ function usePaginatedItems(
       setState({
         currentPage,
         currentPageIndex,
-        items,
+        items: items as any,
         pages,
       })
     })
