@@ -1,0 +1,35 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/MeinJokes.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.9;\n\nstruct Jeshe {\n    string content;\n    bytes6 bgColor;\n    bytes6 textColor;\n    address author;\n    address owner;\n}\n\ncontract MeinJokes {\n    uint64 nextItemIdx;\n    mapping(uint64 => Jeshe) itemsById;\n    mapping(address => uint64[]) itemsByOwner;\n\n    event ListedItem(address indexed owner, uint64 indexed item_id);\n\n    function totalItems() external view returns (uint64) {\n        return nextItemIdx;\n    }\n\n    function getItemById(uint64 _itemId) external view returns (Jeshe memory) {\n        return itemsById[_itemId];\n    }\n\n    function getItemsByOwner(address _owner)\n        external\n        view\n        returns (uint64[] memory)\n    {\n        return itemsByOwner[_owner];\n    }\n\n    function listItem(\n        string calldata _content,\n        bytes6 _bgColor,\n        bytes6 _textColor\n    ) external {\n        // At first :: owner = author = msg.sender\n        itemsById[nextItemIdx] = Jeshe(\n            _content,\n            _bgColor,\n            _textColor,\n            msg.sender,\n            msg.sender\n        );\n        emit ListedItem(msg.sender, nextItemIdx);\n        itemsByOwner[msg.sender].push(nextItemIdx++);\n    }\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
