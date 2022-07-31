@@ -1,24 +1,40 @@
 import Head from "next/head"
+import Image from "next/image"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
+
+import CreateButton from "@/components/CreateButton"
+import Feed from "@/components/Feed"
+import Footer from "@/components/Footer"
+
 export default function Home() {
   return (
-    <div className="bg-black min-h-screen flex flex-col">
+    <div className="min-h-screen">
       <Head>
-        <title>Sonic el jeshejojo</title>
+        <title>Jeshejojo</title>
         <meta
           name="description"
-          content="DApp to share your top level dad jokes 🦔."
+          content="Instagram-ish like DApp to share your top level dad jokes 🦔"
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <header className="flex justify-end p-4">
+      <header className="flex justify-between p-4">
+        <div className="flex items-center">
+          <div className="w-10 h-10">
+            <Image
+              alt="Website logo: It's a customized sonic image. The name comes from a youtube video with the title: 'Sonic el jeshejojo'"
+              src="/logo.png"
+              width={400}
+              height={400}
+              layout="responsive"
+            />
+          </div>
+          <strong className="hidden sm:block">Jeshejojo</strong>
+        </div>
         <ConnectButton />
       </header>
-      <main className="flex flex-grow items-center justify-center">
-        <div className="text-white text-5xl">
-          <strong>HOLA 👋</strong>
-        </div>
-      </main>
+      <Feed />
+      <CreateButton />
+      <Footer />
     </div>
   )
 }
