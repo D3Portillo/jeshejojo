@@ -1,22 +1,24 @@
-import { useEffect, useState } from "react"
-import Link from "next/link"
+import { useState } from "react"
 import { useAccount } from "wagmi"
-import { FiArrowUpRight } from "react-icons/fi"
 
 import services from "@/lib/services"
 import getContract from "@/lib/getContract"
 import prettyNumber from "@/lib/prettyNumber"
+import useRunIfDefined from "@/lib/hooks/runIfDefined"
 
 import SvgContent from "@/components/SvgContent"
+import NavigationTitle from "./NavigationTitle"
 import LikeButton from "./LikeButton"
 
 function Jeshe({
-  id = 0,
+  id,
   author = "",
   content = "",
   bgColor = "white",
   textColor = "black",
+  isMock = false,
 }) {
+  const isNotMock = !isMock
   const { address } = useAccount()
   const [likes, setLikes] = useState({ chad: [], clown: [], heart: [] })
   const [userLikes, setUserLikes] = useState({
@@ -25,8 +27,8 @@ function Jeshe({
     heart: false,
   })
   const [txHash, setTxHash] = useState()
-  const prettyAuthor = getBeautyAddress(author)
-  useEffect(() => {
+
+  useRunIfDefined(() => {
     const contract = getContract("MeinJokes")
     contract
       .queryFilter(contract.filters.ListedItem(null, id))
@@ -34,9 +36,9 @@ function Jeshe({
         const { transactionHash } = result[0] || {}
         setTxHash(transactionHash)
       })
-  }, [id])
+  }, [id, isNotMock])
 
-  useEffect(() => {
+  useRunIfDefined(() => {
     services.getLikes(id).then((likes) => {
       setLikes(likes)
       if (address) {
@@ -47,11 +49,11 @@ function Jeshe({
         })
       }
     })
-  }, [address])
+  }, [id, address || true, isNotMock])
 
   const handleLike = (type) => {
-    if (!address) {
-      console.error(`Must login to like Item.id=${id}`)
+    if (!address || isMock) {
+      console.error(`handleLike:: Cannot execute this action`)
       return
     }
     const newLikeState = !userLikes[type]
@@ -74,65 +76,36 @@ function Jeshe({
   }
 
   return (
-    <blockquote
-      cite={`https://etherscan.io/address/${author}`}
-      className="w-full shadow sm:shadow-none sm:border py-4 sm:rounded-lg text-black text-xl"
-    >
-      <div className="px-4 flex items-center justify-between">
-        <span className="text-gray-500 text-sm">
-          Posted by
-          <Link href={`https://goerli.etherscan.io/address/${author}`}>
-            <a
-              className="text-sm group inline-flex space-x-1 items-center hover:bg-zinc-100 py-1 px-2 rounded-lg"
-              target="_blank"
-            >
-              <span>{prettyAuthor}</span>
-              <FiArrowUpRight className="group-hover:scale-110" />
-            </a>
-          </Link>
-        </span>
-        <Link href={`https://goerli.etherscan.io/tx/${txHash}`}>
-          <a
-            className="text-sm group inline-flex space-x-1 items-center hover:bg-zinc-100 py-1 px-2 rounded-lg"
-            target="_blank"
-          >
-            <span>
-              <span className="hidden sm:inline">View</span> TX
-            </span>
-            <FiArrowUpRight className="group-hover:scale-110" />
-          </a>
-        </Link>
-      </div>
-      <div className="w-full my-4 select-none">
+    <section className="w-full shadow sm:shadow-none sm:border py-4 sm:rounded-lg text-black text-xl">
+      <NavigationTitle isMock={isMock} author={author} txHash={txHash} />
+      <div className={`w-full my-4 select-none ${isMock && "animate-pulse"}`}>
         <SvgContent text={content} bgColor={bgColor} textColor={textColor} />
       </div>
       <div className="px-4 flex space-x-1 font-bold">
         <LikeButton
           onClick={() => handleLike("heart")}
+          isMock={isMock}
           isActive={userLikes.heart}
         >
           😍 {prettyNumber(likes.heart.length)}
         </LikeButton>
         <LikeButton
           onClick={() => handleLike("chad")}
+          isMock={isMock}
           isActive={userLikes.chad}
         >
           🥵 {prettyNumber(likes.chad.length)}
         </LikeButton>
         <LikeButton
           onClick={() => handleLike("clown")}
+          isMock={isMock}
           isActive={userLikes.clown}
         >
           🤡 {prettyNumber(likes.clown.length)}
         </LikeButton>
       </div>
-    </blockquote>
+    </section>
   )
-}
-
-function getBeautyAddress(address = "") {
-  if (!address) return "N/A"
-  return `${address.substr(0, 4)}...${address.substr(-4, 4)}`
 }
 
 export default Jeshe
