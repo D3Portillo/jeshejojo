@@ -13,26 +13,45 @@ function Feed() {
     watch: true,
   })
 
-  const paginatedItems = usePaginatedItems(totalItems, {
+  const { items, zeroNodeIdx, lastItemIdx } = usePaginatedItems(totalItems, {
     currentPageIndex: 0,
   })
-  const { items } = paginatedItems
+
   return (
     <main className="flex flex-col flex-grow max-w-2xl space-y-2 mx-auto">
-      {items.map((item) => {
+      {withMockItems(items, {
+        zeroNodeIdx,
+        totalMockItems: 5,
+      }).map((item) => {
+        const { id } = item
+        if (lastItemIdx > 0 && id > lastItemIdx) return null
         return (
           <Jeshe
-            id={item.id}
+            isMock={item.isMock}
+            id={id}
             bgColor={item.bgColor}
             textColor={item.textColor}
             content={item.content}
             author={item.author}
-            key={`jeshe-render-item-${item.author}-${item.content}`}
+            key={`jeshe-render-item-${id}`}
           />
         )
       })}
     </main>
   )
+}
+
+function withMockItems(items = [], { totalMockItems, zeroNodeIdx }) {
+  return [...new Array(totalMockItems)].map((_, idx) => {
+    const id = zeroNodeIdx + idx
+    const itemData = items[id]
+    if (itemData) return itemData
+    return {
+      id,
+      isMock: true,
+      bgColor: "#f1f1f1",
+    }
+  })
 }
 
 export default Feed

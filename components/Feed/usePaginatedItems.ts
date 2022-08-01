@@ -24,12 +24,16 @@ function usePaginatedItems(
   currentPageIndex: number
   currentPage: number
   items: Array<Item>
+  zeroNodeIdx: number
+  lastItemIdx: number
 } {
   const [state, setState] = useState({
     pages: 0,
     currentPageIndex: 0,
     currentPage: 0,
     items: [] as Array<Item>,
+    zeroNodeIdx: 0,
+    lastItemIdx: 0,
   })
 
   const rawTotalItems = totalItems.toNumber()
@@ -37,10 +41,13 @@ function usePaginatedItems(
   useEffect(() => {
     const ids = []
     const currentPage = currentPageIndex + 1
+    // If rawTotalItems===0, then pages = 0
     const pages = BigNumber.from(rawTotalItems ? 1 : 0)
       .add(totalItems.div(PAGE_SIZE))
       .toNumber()
     let startItemIndex = PAGE_SIZE * currentPageIndex
+    const zeroNodeIdx = startItemIndex
+    const lastItemIdx = Math.max(rawTotalItems - 1, 0) // input: -n,...-1 -> 0
     for (
       ;
       startItemIndex < PAGE_SIZE && startItemIndex < rawTotalItems;
@@ -63,6 +70,8 @@ function usePaginatedItems(
       )
     ).then((items) => {
       setState({
+        zeroNodeIdx,
+        lastItemIdx,
         currentPage,
         currentPageIndex,
         items: items as any,
