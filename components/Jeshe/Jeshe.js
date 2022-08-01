@@ -1,25 +1,29 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useAccount } from "wagmi"
 import { FiArrowUpRight } from "react-icons/fi"
 
+import services from "@/lib/services"
 import getContract from "@/lib/getContract"
-import SvgContent from "@/components/SvgContent"
+import prettyNumber from "@/lib/prettyNumber"
 
-function getBeautyAddress(address = "") {
-  if (!address) return "N/A"
-  return `${address.substr(0, 4)}...${address.substr(-4, 4)}`
-}
+import SvgContent from "@/components/SvgContent"
+import LikeButton from "./LikeButton"
 
 function Jeshe({
   id = 0,
   author = "",
-  love = 0,
-  hot = 0,
-  clown = 0,
   content = "",
   bgColor = "white",
   textColor = "black",
 }) {
+  const { address } = useAccount()
+  const [likes, setLikes] = useState({ chad: [], clown: [], heart: [] })
+  const [userLikes, setUserLikes] = useState({
+    chad: false,
+    clown: false,
+    heart: false,
+  })
   const [txHash, setTxHash] = useState()
   const prettyAuthor = getBeautyAddress(author)
   useEffect(() => {
@@ -31,6 +35,44 @@ function Jeshe({
         setTxHash(transactionHash)
       })
   }, [id])
+
+  useEffect(() => {
+    services.getLikes(id).then((likes) => {
+      setLikes(likes)
+      if (address) {
+        setUserLikes({
+          chad: likes.chad.includes(address),
+          clown: likes.clown.includes(address),
+          heart: likes.heart.includes(address),
+        })
+      }
+    })
+  }, [address])
+
+  const handleLike = (type) => {
+    if (!address) {
+      console.error(`Must login to like Item.id=${id}`)
+      return
+    }
+    const newLikeState = !userLikes[type]
+    /** @type { Array<string> } */
+    const newLikeArr = likes[type]
+    if (newLikeState) {
+      // User giving a like
+      newLikeArr.push("0x0")
+    } else {
+      // User giving a dislike
+      newLikeArr.pop()
+    }
+    setUserLikes({ ...userLikes, [type]: newLikeState })
+    setLikes({ ...likes, [type]: newLikeArr })
+    services.setLikes({
+      address,
+      id,
+      type,
+    })
+  }
+
   return (
     <blockquote
       cite={`https://etherscan.io/address/${author}`}
@@ -64,20 +106,33 @@ function Jeshe({
       <div className="w-full my-4 select-none">
         <SvgContent text={content} bgColor={bgColor} textColor={textColor} />
       </div>
-
       <div className="px-4 flex space-x-1 font-bold">
-        <button className="hover:bg-zinc-100 py-1 px-2 rounded-lg">
-          😍 {love}K
-        </button>
-        <button className="hover:bg-zinc-100 py-1 px-2 rounded-lg">
-          🥵 {hot}K
-        </button>
-        <button className="bg-pink-300 hover:bg-zinc-100 py-1 px-2 rounded-lg">
-          🤡 {clown}K
-        </button>
+        <LikeButton
+          onClick={() => handleLike("heart")}
+          isActive={userLikes.heart}
+        >
+          😍 {prettyNumber(likes.heart.length)}
+        </LikeButton>
+        <LikeButton
+          onClick={() => handleLike("chad")}
+          isActive={userLikes.chad}
+        >
+          🥵 {prettyNumber(likes.chad.length)}
+        </LikeButton>
+        <LikeButton
+          onClick={() => handleLike("clown")}
+          isActive={userLikes.clown}
+        >
+          🤡 {prettyNumber(likes.clown.length)}
+        </LikeButton>
       </div>
     </blockquote>
   )
+}
+
+function getBeautyAddress(address = "") {
+  if (!address) return "N/A"
+  return `${address.substr(0, 4)}...${address.substr(-4, 4)}`
 }
 
 export default Jeshe
