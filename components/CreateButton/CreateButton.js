@@ -183,16 +183,14 @@ function CreateButton() {
     setItemConfig((state) => ({ ...state, textColor }))
   return (
     <>
-      <div className="fixed bottom-0 right-0 w-full">
-        <div className="max-w-4xl relative mx-auto">
-          <div className="absolute bottom-0 right-0 p-4">
-            <button
-              onClick={openModal}
-              className="bg-white shadow-2xl drop-shadow-xl w-20 h-20 font-bold flex items-center justify-center rounded-full"
-            >
-              <GrFormAdd className="text-4xl" />
-            </button>
-          </div>
+      <div className="sticky bottom-0 mx-auto w-screen max-w-4xl">
+        <div className="absolute bottom-0 right-0 p-4">
+          <button
+            onClick={openModal}
+            className="bg-white shadow-2xl drop-shadow-xl w-20 h-20 font-bold flex items-center justify-center rounded-full"
+          >
+            <GrFormAdd className="text-4xl" />
+          </button>
         </div>
       </div>
 
