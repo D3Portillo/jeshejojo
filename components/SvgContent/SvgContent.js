@@ -1,10 +1,11 @@
 import sanitizeText from "@/lib/sanitizeText"
 export const SIZE = 1080
 export const GAP = 8
+export const getContentTextSize = (text) => (text?.length < 80 ? 120 : 80)
 
 const SvgContent = ({ text = "", bgColor = "white", textColor = "black" }) => {
   const sanitizedText = sanitizeText(text)
-  const textSize = sanitizedText.length < 80 ? 120 : 80
+  const textSize = getContentTextSize(sanitizedText)
   return (
     <svg viewBox={`0 0 ${SIZE} ${SIZE}`} xmlns="http://www.w3.org/2000/svg">
       <g>

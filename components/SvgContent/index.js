@@ -1,1 +1,1 @@
-export { default } from "./SvgContent"
+export { default, GAP, SIZE, getContentTextSize } from "./SvgContent"
