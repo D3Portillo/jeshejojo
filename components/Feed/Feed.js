@@ -21,7 +21,7 @@ function Feed() {
     <main className="flex flex-col flex-grow max-w-2xl space-y-2 mx-auto">
       {withMockItems(items, {
         zeroNodeIdx,
-        totalMockItems: 5,
+        totalMockItems: 7,
       }).map((item) => {
         const { id } = item
         if (lastItemIdx > 0 && id > lastItemIdx) return null
@@ -42,6 +42,7 @@ function Feed() {
 }
 
 function withMockItems(items = [], { totalMockItems, zeroNodeIdx }) {
+  if (items.length > totalMockItems) return items
   return [...new Array(totalMockItems)].map((_, idx) => {
     const id = zeroNodeIdx + idx
     const itemData = items[id]
