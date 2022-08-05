@@ -1,12 +1,12 @@
 import { GAP } from "@/components/SvgContent"
 
 function VerticalTextArea({
-  onText = () => null,
+  onText,
   svgRenderSize = 1,
+  disabled,
   itemConfig = {},
-  scale = 1,
 }) {
-  const { bgColor, textColor, message, textSize } = itemConfig
+  const { bgColor, textColor, message, textSize, scale } = itemConfig
   const scaledFontSize = scale * textSize
   return (
     <label
@@ -30,7 +30,8 @@ function VerticalTextArea({
       )}
       <textarea
         autoFocus
-        className="bg-transparent w-full text-center overflow-hidden"
+        disabled={disabled}
+        className="bg-transparent outline-none w-full text-center overflow-hidden"
         value={message}
         style={{
           lineHeight: "115%",
@@ -39,6 +40,7 @@ function VerticalTextArea({
           padding: `50% ${scale * GAP}px`,
           fontSize: scaledFontSize,
         }}
+        spellCheck={false}
         onInput={({ target }) => {
           target.style.height = scaledFontSize + "px"
           target.style.height = target.scrollHeight + "px"

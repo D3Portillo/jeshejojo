@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react"
+import { noOp } from "@/lib/helpers"
 
 const ColorPicker = ({
-  onColor = () => null,
+  onColor = noOp,
   value,
+  disabled,
   defaultColor = "#ffffff",
   children = null,
 }) => {
@@ -20,17 +22,19 @@ const ColorPicker = ({
   return (
     <label
       role="button"
-      className="text-sm relative group inline-flex space-x-1 items-center justify-between hover:bg-zinc-100 py-1 px-2 rounded-lg"
+      className="text-sm relative group inline-flex space-x-1 items-center justify-between hover:bg-zinc-100 py-1 px-2"
     >
       <div
-        className="w-6 h-6 rounded-full border"
+        className="w-5 h-5 rounded-full border"
         style={{ background: color }}
       />
-      <strong>{children}</strong>
+      {children}
       <input
+        value={color}
         type="color"
+        disabled={disabled}
         onInput={handleOnInput}
-        className="inset-0 absolute opacity-0 w-full h-full"
+        className="inset-0 z-[1] cursor-pointer absolute opacity-0 w-full h-full"
       />
     </label>
   )

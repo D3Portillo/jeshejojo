@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useState } from "react"
-import { useContractWrite } from "wagmi"
+import { useAccount, useContractWrite } from "wagmi"
+import { useConnectModal } from "@rainbow-me/rainbowkit"
 import { utils } from "ethers"
 import { HiArrowRight } from "react-icons/hi"
-import { GrFormAdd } from "react-icons/gr"
+import toast from "react-hot-toast"
+
+import { MdFormatColorText, MdOutlineFormatColorFill } from "react-icons/md"
 
 import getContract from "@/lib/getContract"
 import sanitizeText from "@/lib/sanitizeText"
-import { isDevEnv } from "@/lib/helpers"
+import { isDevEnv, noOp } from "@/lib/helpers"
 
 import SvgContent, {
   getContentTextSize,
@@ -16,6 +19,7 @@ import Modal from "@/components/Modal"
 import ColorPicker from "./ColorPicker"
 import SizeLeftCounter from "./SizeLeftCounter"
 import VerticalTextArea from "./VerticalTextArea"
+import FloatingActionButton from "./FloatingActionButton"
 
 const MeinJokes = getContract("MeinJokes")
 const INIT_ITEM_STATE = {
@@ -23,21 +27,23 @@ const INIT_ITEM_STATE = {
   textColor: "#000000",
   message: "",
   textSize: 120,
+  scale: 1,
 }
 /** @type { HTMLDivElement } */
 const MOCK_DIV = {}
-function CreateButton() {
-  const [svgScale, setSvgScale] = useState(1)
+function CreateButton({ onCreateItem }) {
+  const { isConnected: isUserConnected } = useAccount()
+  const { openConnectModal = noOp } = useConnectModal()
   const [svgContainer, setSvgContainer] = useState(MOCK_DIV)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [itemConfig, setItemConfig] = useState(INIT_ITEM_STATE)
-  const { data, isError, isLoading, write } = useContractWrite({
+  const { writeAsync, isLoading } = useContractWrite({
     addressOrName: MeinJokes.address,
     contractInterface: MeinJokes.abi,
     functionName: "listItem",
   })
   /** @type { MeinJokes["listItem"] } */
-  const listItem = (...args) => write({ args })
+  const listItem = (...args) => writeAsync({ args })
 
   /**
    * @param { itemConfig } newConfig
@@ -56,11 +62,38 @@ function CreateButton() {
 
   function handleCreate() {
     const { message, bgColor, textColor } = itemConfig
-    listItem(
+    if (!isUserConnected) {
+      openConnectModal()
+      return
+    }
+    if (!message?.trim()) {
+      toast.error("Message can't be empty")
+      return
+    }
+    const waitForTx = listItem(
       message,
       utils.toUtf8Bytes(bgColor.replace("#", "")),
       utils.toUtf8Bytes(textColor.replace("#", ""))
     )
+    waitForTx
+      .then(() => {
+        closeModal()
+        onCreateItem({
+          content: message,
+          bgColor,
+          textColor,
+          waitForTx,
+        })
+        setTimeout(() => {
+          document.body.scrollIntoView({
+            behavior: "smooth",
+            block: "end",
+            inline: "end",
+          })
+        })
+      })
+      .catch(noOp)
+    // No error handling - User denied transaction
   }
 
   const handleItemMessage = (rawMessage = "") => {
@@ -74,7 +107,7 @@ function CreateButton() {
   useEffect(() => {
     const { width } = svgContainer.getClientRects?.()[0] || {}
     if (width) {
-      setSvgScale(width / SVG_SIZE)
+      asyncSetItemConfig({ scale: width / SVG_SIZE })
     }
   }, [svgContainer.clientWidth])
 
@@ -87,24 +120,10 @@ function CreateButton() {
 
   return (
     <>
-      <section className="sticky bottom-0 mx-auto w-screen max-w-4xl">
-        <div className="absolute bottom-0 right-0 p-4">
-          <button
-            onClick={openModal}
-            className="bg-white shadow-2xl drop-shadow-xl w-20 h-20 font-bold flex items-center justify-center rounded-full"
-          >
-            <GrFormAdd className="text-4xl" />
-          </button>
-        </div>
-      </section>
-      <Modal isOpen={isModalOpen} onClose={closeModal}>
-        <div className="flex space-x-2 pl-2 pr-4 my-2" role="controls">
-          <ColorPicker value={itemConfig.bgColor} onColor={setBgColor}>
-            Background
-          </ColorPicker>
-          <ColorPicker value={itemConfig.textColor} onColor={setTextColor}>
-            Text
-          </ColorPicker>
+      <FloatingActionButton onClick={openModal} />
+      <Modal disabled={isLoading} isOpen={isModalOpen} onClose={closeModal}>
+        <div className="flex space-x-2 px-4 my-2" role="title">
+          <strong>GENESIS</strong>
           <div className="flex-grow" />
           <SizeLeftCounter size={itemConfig.message.length} />
         </div>
@@ -113,15 +132,31 @@ function CreateButton() {
             <SvgContent {...itemConfig} />
           </SvgDebugger>
           <VerticalTextArea
+            disabled={isLoading}
             svgRenderSize={svgContainer.clientWidth}
-            scale={svgScale}
             onText={handleItemMessage}
             itemConfig={itemConfig}
           />
         </div>
-        <div className="flex justify-end">
+        <div className="flex items-ceneter justify-between space-x-2">
+          <ColorPicker
+            disabled={isLoading}
+            value={itemConfig.bgColor}
+            onColor={setBgColor}
+          >
+            <MdOutlineFormatColorFill className="text-xl" />
+          </ColorPicker>
+          <ColorPicker
+            disabled={isLoading}
+            value={itemConfig.textColor}
+            onColor={setTextColor}
+          >
+            <MdFormatColorText className="text-xl" />
+          </ColorPicker>
+          <div className="flex-grow" />
           <button
             type="button"
+            disabled={isLoading}
             className="flex items-center gap-3 font-bold text-xl py-3 px-4 hover:bg-slate-100"
             onClick={handleCreate}
           >

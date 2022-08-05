@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react"
 import { useContractRead } from "wagmi"
 
 import getContract from "@/lib/getContract"
@@ -5,7 +6,9 @@ import Jeshe from "@/components/Jeshe"
 import usePaginatedItems from "./usePaginatedItems"
 
 const MeinJokes = getContract("MeinJokes")
-function Feed() {
+function Feed({ userCreatedItems = [], clearUserCreatedItems }) {
+  const ref = useRef()
+  const [LAZY_FEED, setUserFeed] = useState([])
   const { data: totalItems } = useContractRead({
     addressOrName: MeinJokes.address,
     contractInterface: MeinJokes.abi,
@@ -13,46 +16,59 @@ function Feed() {
     watch: true,
   })
 
-  const { items, zeroNodeIdx, lastItemIdx } = usePaginatedItems(totalItems, {
-    currentPageIndex: 0,
+  const asyncSetUserFeed = (newItems = []) =>
+    setUserFeed((prev) => [...prev, ...newItems])
+
+  const { fetchNextItems } = usePaginatedItems(totalItems, {
+    onItemId: (id) => asyncSetUserFeed([makeItem({ id })]),
+    mockItems: 7,
   })
 
+  useEffect(() => {
+    const THROTTLE_TIME = 1200 // 1.2sec
+    let lastThrottle = 0
+    function handler(entries) {
+      const target = entries[0]
+      const now = Date.now()
+      const timeDiff = now - lastThrottle
+      if (target.isIntersecting && timeDiff > THROTTLE_TIME) {
+        lastThrottle = now
+        fetchNextItems()
+      }
+    }
+
+    const observer = new IntersectionObserver(handler, {
+      root: null,
+      rootMargin: "48px",
+      threshold: 0,
+    })
+
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    asyncSetUserFeed(
+      [...userCreatedItems].map((item) =>
+        makeItem(item, {
+          key: `jeshe-user-item-${item.content}-${item.bgColor}`,
+        })
+      )
+    )
+    clearUserCreatedItems()
+  }, [userCreatedItems.length])
+
   return (
-    <main className="flex flex-col flex-grow max-w-2xl space-y-2 mx-auto">
-      {withMockItems(items, {
-        zeroNodeIdx,
-        totalMockItems: 7,
-      }).map((item) => {
-        const { id } = item
-        if (lastItemIdx > 0 && id > lastItemIdx) return null
-        return (
-          <Jeshe
-            isMock={item.isMock}
-            id={id}
-            bgColor={item.bgColor}
-            textColor={item.textColor}
-            content={item.content}
-            author={item.author}
-            key={`jeshe-render-item-${id}`}
-          />
-        )
-      })}
+    <main className="relative flex min-h-screen flex-col flex-grow max-w-2xl space-y-2 mx-auto">
+      {LAZY_FEED}
+      <span className="absolute bottom-0" ref={ref} />
     </main>
   )
 }
 
-function withMockItems(items = [], { totalMockItems, zeroNodeIdx }) {
-  if (items.length > totalMockItems) return items
-  return [...new Array(totalMockItems)].map((_, idx) => {
-    const id = zeroNodeIdx + idx
-    const itemData = items[id]
-    if (itemData) return itemData
-    return {
-      id,
-      isMock: true,
-      bgColor: "#f1f1f1",
-    }
-  })
+function makeItem(props = {}, overrides = {}) {
+  const { id } = props
+  return <Jeshe {...props} key={`jeshe-item-${id}`} {...overrides} />
 }
 
 export default Feed

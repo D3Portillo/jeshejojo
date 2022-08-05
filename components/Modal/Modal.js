@@ -1,14 +1,15 @@
-import { Fragment } from "react"
+import { Fragment, useMemo } from "react"
 import { Dialog, Transition } from "@headlessui/react"
+import { noOp } from "@/lib/helpers"
 
-function Modal({ children = null, onClose, isOpen = false }) {
+function Modal({ children = null, disabled, onClose, isOpen = false }) {
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog
         as="main"
         role="dialog"
         className="relative z-10"
-        onClose={onClose}
+        onClose={disabled ? noOp : onClose}
       >
         <Transition.Child
           as={Fragment}
@@ -34,7 +35,7 @@ function Modal({ children = null, onClose, isOpen = false }) {
               leaveTo="opacity-0 scale-95"
             >
               <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-t-2xl lg:rounded-b-2xl bg-white shadow-xl transition-all">
-                {children}
+                <div className={disabled && "blur-[1.2px]"}>{children}</div>
               </Dialog.Panel>
             </Transition.Child>
           </div>
