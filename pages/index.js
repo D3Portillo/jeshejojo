@@ -1,40 +1,39 @@
-import Head from "next/head"
-import Image from "next/image"
-import { ConnectButton } from "@rainbow-me/rainbowkit"
+import { useState } from "react"
 
 import CreateButton from "@/components/CreateButton"
-import Feed from "@/components/Feed"
+import Header from "@/components/Header"
 import Footer from "@/components/Footer"
+import Feed from "@/components/Feed"
 
 export default function Home() {
+  const {
+    items: userItems,
+    pushItem,
+    forceSetItems: clearUserItems,
+  } = useStatefullArray()
+
   return (
     <div className="min-h-screen">
-      <Head>
-        <title>Jeshejojo</title>
-        <meta
-          name="description"
-          content="Instagram-ish like DApp to share your top level dad jokes 🦔"
-        />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <header className="flex justify-between p-4">
-        <div className="flex items-center">
-          <div className="w-10 h-10">
-            <Image
-              alt="Website logo: It's a customized sonic image. The name comes from a youtube video with the title: 'Sonic el jeshejojo'"
-              src="/logo.png"
-              width={400}
-              height={400}
-              layout="responsive"
-            />
-          </div>
-          <strong className="hidden sm:block">Jeshejojo</strong>
-        </div>
-        <ConnectButton />
-      </header>
-      <Feed />
-      <CreateButton />
+      <Header />
+      <Feed
+        clearUserCreatedItems={clearUserItems}
+        userCreatedItems={userItems}
+      />
+      <CreateButton onCreateItem={pushItem} />
       <Footer />
     </div>
   )
+}
+
+function useStatefullArray(initState = []) {
+  const [items, setItems] = useState(initState)
+
+  function pushItem(item) {
+    setItems((arr) => [...arr, item])
+  }
+  function forceSetItems(items = []) {
+    setItems(items)
+  }
+
+  return { items, pushItem, forceSetItems }
 }
