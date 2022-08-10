@@ -19,6 +19,7 @@ function Jeshe({
   content: _content,
   bgColor: _bgColor,
   textColor: _textColor,
+  addItemToMutableStore,
   waitForTx,
 }) {
   const { address } = useAccount()
@@ -51,12 +52,14 @@ function Jeshe({
           .then((transaction) => {
             const id = getIdFromTransaction(transaction)
             if (id) {
-              setMetadata((metadata) => ({ ...metadata, id: id.toNumber() }))
+              const rawId = id.toNumber()
+              addItemToMutableStore(rawId)
+              setMetadata((metadata) => ({ ...metadata, id: rawId }))
             }
           })
           .catch((_) => {
             // Show error state
-            // TODO: detach component if error
+            // TODO: detach component if error existent
           })
       }
     })
