@@ -7,6 +7,9 @@ on:
 
 jobs:
   ci-test:
+    env:
+      GOERLI_ALCHEMY_URL: ${{ secrets.GOERLI_ALCHEMY_URL }}
+      PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -17,3 +20,4 @@ jobs:
           cache: npm
       - run: npm install
       - run: npm run test:ci
+
