@@ -26,15 +26,14 @@ contract MeinJokes {
         string calldata _content,
         bytes6 _bgColor,
         bytes6 _textColor
-    ) external notEmptyOrGt200(_content) returns (uint64) {
+    ) external notEmptyOrGt200(_content) {
         itemsById[nextItemIdx] = Jeshe(
             _bgColor,
             _textColor,
             msg.sender,
             _content
         );
-        emit ListedItem(msg.sender, nextItemIdx);
-        return nextItemIdx++;
+        emit ListedItem(msg.sender, nextItemIdx++);
     }
 
     // MODIFIERS
