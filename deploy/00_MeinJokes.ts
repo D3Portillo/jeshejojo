@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 import { DeployFunction } from "hardhat-deploy/types"
 
-const deployment: DeployFunction = async function (
+const MeinJokes: DeployFunction = async function (
   hre: HardhatRuntimeEnvironment
 ) {
   const { getNamedAccounts, deployments } = hre
@@ -11,4 +11,4 @@ const deployment: DeployFunction = async function (
   })
 }
 
-export default deployment
+export default MeinJokes

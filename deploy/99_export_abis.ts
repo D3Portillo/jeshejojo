@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types"
 import { resolve } from "path"
 import fs from "fs"
 
-const deployment: DeployFunction = async function (
+const exportABIs: DeployFunction = async function (
   hre: HardhatRuntimeEnvironment
 ) {
   const { network, run } = hre
@@ -16,5 +16,5 @@ const deployment: DeployFunction = async function (
   await fs.writeFileSync(EXPORT_PATH, JSON.stringify(exportedAbis))
 }
 
-deployment.runAtTheEnd = true
-export default deployment
+exportABIs.runAtTheEnd = true
+export default exportABIs
