@@ -6,7 +6,10 @@ import Jeshe from "@/components/Jeshe"
 import usePaginatedItems from "./usePaginatedItems"
 
 const MeinJokes = getContract("MeinJokes")
-function Feed({ userCreatedItems = [], clearUserCreatedItems }) {
+function Feed({
+  userCreatedItems = [],
+  clearUserCreatedItems: clearUserItems,
+}) {
   const ref = useRef()
   const [LAZY_FEED, setUserFeed] = useState([])
   const { data: totalItems } = useContractRead({
@@ -19,13 +22,27 @@ function Feed({ userCreatedItems = [], clearUserCreatedItems }) {
   const asyncSetUserFeed = (newItems = []) =>
     setUserFeed((prev) => [...prev, ...newItems])
 
-  const { fetchNextItems } = usePaginatedItems(totalItems, {
-    onItemId: (id) => asyncSetUserFeed([makeItem({ id })]),
+  const { fetchNextItems, mutableStore } = usePaginatedItems(totalItems, {
+    onItemId: (id) => asyncSetUserFeed([makeFeedItem({ id })]),
     mockItems: 7,
   })
 
+  function addItemToMutableStore(id) {
+    const inStore = mutableStore.current.inStore[id]
+    console.debug({ id, mutableStore, inStore })
+    // NOTE: do not remove. Used to debug if false-positive user created item
+    mutableStore.current.inStore[id] = true
+  }
+
+  const makeFeedItem = (props, overrides) => {
+    return makeItem(props, {
+      ...overrides,
+      addItemToMutableStore,
+    })
+  }
+
   useEffect(() => {
-    const THROTTLE_TIME = 1200 // 1.2sec
+    const THROTTLE_TIME = 200 // .2sec
     let lastThrottle = 0
     function handler(entries) {
       const target = entries[0]
@@ -39,7 +56,6 @@ function Feed({ userCreatedItems = [], clearUserCreatedItems }) {
 
     const observer = new IntersectionObserver(handler, {
       root: null,
-      rootMargin: "48px",
       threshold: 0,
     })
 
@@ -50,18 +66,18 @@ function Feed({ userCreatedItems = [], clearUserCreatedItems }) {
   useEffect(() => {
     asyncSetUserFeed(
       [...userCreatedItems].map((item) =>
-        makeItem(item, {
+        makeFeedItem(item, {
           key: `jeshe-user-item-${item.content}-${item.bgColor}`,
         })
       )
     )
-    clearUserCreatedItems()
+    clearUserItems()
   }, [userCreatedItems.length])
 
   return (
     <main className="relative flex min-h-screen flex-col flex-grow max-w-2xl space-y-2 mx-auto">
       {LAZY_FEED}
-      <span className="absolute bottom-0" ref={ref} />
+      <span className="absolute bottom-[-8.5rem]" ref={ref} />
     </main>
   )
 }
