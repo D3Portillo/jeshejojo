@@ -1,14 +1,15 @@
 {
   "name": "jeshejojo",
   "version": "0.0.0",
-  "main": "index.js",
   "scripts": {
     "dev:local": "next dev & hardhat node",
     "dev:goerli": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "hardhat test"
+    "test:contracts": "hardhat test",
+    "test:frontend": "echo -n OK",
+    "test:ci": "npm run test:contracts && npm run test:frontend"
   },
   "keywords": [],
   "license": "MIT",
