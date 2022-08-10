@@ -4,12 +4,12 @@
   "scripts": {
     "dev:local": "next dev & hardhat node",
     "dev:goerli": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
+    "build:frontend": "next build",
+    "lint:frontend": "next lint",
     "test:contracts": "hardhat test",
     "test:frontend": "echo -n OK",
-    "test:ci": "npm run test:contracts && npm run test:frontend"
+    "test:ci": "npm run test:contracts && npm run test:frontend",
+    "deploy:goerli": "hardhat test && hardhat deploy --network goerli"
   },
   "keywords": [],
   "license": "MIT",
@@ -29,6 +29,7 @@
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.2",
     "@nomicfoundation/hardhat-toolbox": "^1.0.2",
     "@nomiclabs/hardhat-ethers": "^2.1.0",
+    "@nomiclabs/hardhat-etherscan": "^3.1.0",
     "@types/react": "^18.0.15",
     "autoprefixer": "^10.4.7",
     "dotenv": "^16.0.1",
