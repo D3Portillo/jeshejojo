@@ -17,11 +17,12 @@ export default async function handler(req, res) {
     if (definedWithSize(id) && definedWithSize(address, 4)) {
       const store = `${id}.likes.${type}`
       const redis = Redis.fromEnv()
-      // Remove this like from store for `address`
+      // Remove this like from store for `address`.
+      // Think of it as an optimistic "disliking" state
       const rmStatus = await redis.srem(store, `${address}`)
       if (rmStatus === 0) {
         // If nothing removed this means the user isn't "disliking"
-        // Thus we continue to SADD
+        // Thus we continue to add user to our SET
         await redis.sadd(store, `${address}`)
       }
       res.json({ message: "Success" })
