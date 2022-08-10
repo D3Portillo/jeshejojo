@@ -35,7 +35,7 @@ function usePaginatedItems(
     }
   }, [fetch])
 
-  return { fetchNextItems }
+  return { fetchNextItems, mutableStore }
 }
 
 export default usePaginatedItems
