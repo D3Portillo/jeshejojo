@@ -8,6 +8,7 @@ import prettyNumber from "@/lib/prettyNumber"
 import useRunIfTruthy from "@/lib/hooks/useRunIfTruthy"
 
 import SvgContent from "@/components/SvgContent"
+import ErrorMessage from "@/components/ErrorMessage"
 import { formatColor, getIdFromTransaction, LIKE_TYPES } from "./internals"
 import NavigationTitle from "./NavigationTitle"
 import LikeButton from "./LikeButton"
@@ -23,6 +24,8 @@ function Jeshe({
   waitForTx,
 }) {
   const { address } = useAccount()
+  const [forceUnmount, setForceUnmount] = useState(false)
+  const [showUnmountMessage, setShowUnMountMessage] = useState(false)
   const [likes, setLikes] = useState({ chad: [], clown: [], heart: [] })
   const [txHash, setTxHash] = useState()
   const [userLikes, setUserLikes] = useState({
@@ -38,6 +41,8 @@ function Jeshe({
     textColor: _textColor,
   })
   const { id, author, bgColor, content, textColor } = metadata
+  /** Force component to render `null` */
+  const forceDetachComponent = () => setForceUnmount(true)
 
   // Semantical Negative-State flags
   const isUndefinedId = id === undefined
@@ -53,13 +58,15 @@ function Jeshe({
             const id = getIdFromTransaction(transaction)
             if (id) {
               const rawId = id.toNumber()
-              addItemToMutableStore(rawId)
-              setMetadata((metadata) => ({ ...metadata, id: rawId }))
+              const itemNotInFeedRender = !addItemToMutableStore(rawId)
+              if (itemNotInFeedRender) {
+                setMetadata((metadata) => ({ ...metadata, id: rawId }))
+              } else forceDetachComponent()
             }
           })
           .catch((_) => {
-            // Show error state
-            // TODO: detach component if error existent
+            // Show Error State & unmount
+            setShowUnMountMessage(true)
           })
       }
     })
@@ -130,6 +137,7 @@ function Jeshe({
   }
 
   const isMock = isUndefinedId || isUndefinedContent
+  if (forceUnmount) return null
   return (
     <section className="w-full shadow sm:shadow-none sm:border py-4 sm:rounded-lg text-black text-xl">
       <NavigationTitle
@@ -137,7 +145,14 @@ function Jeshe({
         author={waitForTx ? address : author}
         txHash={txHash}
       />
-      <div className={`w-full my-4 select-none ${isMock && "animate-pulse"}`}>
+      <div
+        className={`w-full relative my-4 select-none ${
+          isMock && "animate-pulse"
+        }`}
+      >
+        {showUnmountMessage && (
+          <ErrorMessage onActionPressed={forceDetachComponent} />
+        )}
         <SvgContent text={content} bgColor={bgColor} textColor={textColor} />
       </div>
       <div className="px-4 flex space-x-1 font-bold">
@@ -146,7 +161,7 @@ function Jeshe({
             <LikeButton
               key={`like-type-button-${type}`}
               onClick={() => handleLike(type)}
-              isMock={isMock}
+              isMock={isMock || showUnmountMessage}
               isActive={userLikes[type]}
             >
               {icon} {prettyNumber(likes[type].length)}
