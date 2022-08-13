@@ -131,12 +131,14 @@ function CreateButton({ onCreateItem }) {
           <SvgDebugger>
             <SvgContent {...itemConfig} />
           </SvgDebugger>
-          <VerticalTextArea
-            disabled={isLoading}
-            svgRenderSize={svgContainer.clientWidth}
-            onText={handleItemMessage}
-            itemConfig={itemConfig}
-          />
+          {isModalOpen && (
+            <VerticalTextArea
+              disabled={isLoading}
+              svgRenderSize={svgContainer.clientWidth}
+              onText={handleItemMessage}
+              itemConfig={itemConfig}
+            />
+          )}
         </div>
         <div className="flex items-ceneter justify-between space-x-2">
           <ColorPicker
