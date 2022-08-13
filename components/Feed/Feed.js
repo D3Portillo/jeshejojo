@@ -29,9 +29,10 @@ function Feed({
 
   function addItemToMutableStore(id) {
     const inStore = mutableStore.current.inStore[id]
-    console.debug({ id, mutableStore, inStore })
+    console.debug({ id, inStore })
     // NOTE: do not remove. Used to debug if false-positive user created item
     mutableStore.current.inStore[id] = true
+    return inStore
   }
 
   const makeFeedItem = (props, overrides) => {
