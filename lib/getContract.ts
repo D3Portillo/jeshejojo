@@ -19,8 +19,6 @@ const CURRENT_CHAIN_NAME = (() => {
   const wagmiStore = JSON.parse(JSON.parse(rawStore))
   const networkId = wagmiStore.state?.data?.chain?.id
   switch (networkId) {
-    case 1:
-      return "mainnet"
     case 31337:
       return "localhost"
     default:
