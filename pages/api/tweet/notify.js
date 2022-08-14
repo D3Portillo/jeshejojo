@@ -1,5 +1,6 @@
 import getContract from "@/lib/getContract"
 import getAirtableBase from "@/lib/getAirtableBase"
+import { getBeautyAddress } from "@/lib/helpers"
 
 const AirtableBase = getAirtableBase()
 const MeinJokes = getContract("MeinJokes")
@@ -29,7 +30,7 @@ export default async function handler(req, res) {
               AirtableBase.create({
                 id: id.toNumber().toString(),
                 content: jeshejojo.content,
-                owner: ownerAddr,
+                owner: getBeautyAddress(ownerAddr),
               }).finally(() => res.json({ message: "Success" }))
             })
           } else errorNoItemFound()

@@ -1,6 +1,6 @@
-import Link from "next/link"
 import { useNetwork } from "wagmi"
 
+import { getBeautyAddress } from "@/lib/helpers"
 import ExternalLink from "@/components/ExternalLink"
 import MockBlock from "@/components/MockBlock"
 
@@ -31,11 +31,7 @@ function NavigationTitle({ author, txHash, isMock }) {
       ) : (
         <span className="text-gray-500 text-sm">
           Posted by
-          <ExternalLink
-            className="bg-white"
-            isSelf
-            href={`/address/${author}`}
-          >
+          <ExternalLink className="bg-white" isSelf href={`/address/${author}`}>
             {prettyAuthor}
           </ExternalLink>
         </span>
@@ -49,11 +45,6 @@ function NavigationTitle({ author, txHash, isMock }) {
       )}
     </div>
   )
-}
-
-function getBeautyAddress(address = "") {
-  if (!address) return "N/A"
-  return `${address.substr(0, 4)}...${address.substr(-4, 4)}`
 }
 
 export default NavigationTitle
