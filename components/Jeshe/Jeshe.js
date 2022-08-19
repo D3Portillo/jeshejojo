@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { useState } from "react"
 import { useAccount } from "wagmi"
 
@@ -139,22 +140,24 @@ function Jeshe({
   const isMock = isUndefinedId || isUndefinedContent
   if (forceUnmount) return null
   return (
-    <section className="w-full shadow sm:shadow-none sm:border py-4 sm:rounded-lg text-black text-xl">
+    <section className="w-full hover:ring-2 ring-slate-100 shadow sm:shadow-none sm:border py-4 sm:rounded-lg text-black text-xl">
       <NavigationTitle
         isMock={isMock}
         author={waitForTx ? address : author}
         txHash={txHash}
       />
-      <div
-        className={`w-full relative my-4 select-none ${
-          isMock && "animate-pulse"
-        }`}
-      >
-        {showUnmountMessage && (
-          <ErrorMessage onActionPressed={forceDetachComponent} />
-        )}
-        <SvgContent text={content} bgColor={bgColor} textColor={textColor} />
-      </div>
+      <Link href={id === undefined ? "#" : `/id/${id}`}>
+        <a
+          className={`w-full block relative cursor-pointer my-4 select-none ${
+            isMock && "animate-pulse"
+          }`}
+        >
+          {showUnmountMessage && (
+            <ErrorMessage onActionPressed={forceDetachComponent} />
+          )}
+          <SvgContent text={content} bgColor={bgColor} textColor={textColor} />
+        </a>
+      </Link>
       <div className="px-4 flex space-x-1 font-bold">
         {LIKE_TYPES.map(({ type, icon }) => {
           return (
