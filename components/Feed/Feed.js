@@ -76,16 +76,24 @@ function Feed({
   }, [userCreatedItems.length])
 
   return (
-    <main className="relative flex min-h-screen flex-col flex-grow max-w-2xl space-y-2 mx-auto">
+    <FeedContainer>
       {LAZY_FEED}
       <span className="absolute bottom-[-8.5rem]" ref={ref} />
-    </main>
+    </FeedContainer>
   )
 }
 
 function makeItem(props = {}, overrides = {}) {
   const { id } = props
   return <Jeshe {...props} key={`jeshe-item-${id}`} {...overrides} />
+}
+
+export function FeedContainer({ children = null }) {
+  return (
+    <main className="relative flex min-h-screen flex-col flex-grow max-w-2xl space-y-2 mx-auto">
+      {children}
+    </main>
+  )
 }
 
 export default Feed
