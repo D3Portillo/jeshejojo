@@ -1,4 +1,4 @@
-import { useNetwork } from "wagmi"
+import { useNetwork, chain as CHAIN } from "wagmi"
 
 import { getBeautyAddress } from "@/lib/helpers"
 import ExternalLink from "@/components/ExternalLink"
@@ -6,7 +6,8 @@ import MockBlock from "@/components/MockBlock"
 
 const useBlockExplorer = () => {
   const { chain } = useNetwork()
-  const explorerURL = chain?.blockExplorers?.default?.url
+  const explorer = chain?.blockExplorers || CHAIN.goerli.blockExplorers
+  const explorerURL = explorer.default?.url
   function getAddressExplorer(address) {
     return `${explorerURL}/address/${address}`
   }
