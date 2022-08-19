@@ -23,9 +23,10 @@ function usePaginatedItems(
     const status = mutableStore.current
     // Fetch id's starting from latest fetched id number value
     let id = status.fetchedItems
-    console.debug({ fetchStartId: id })
-    const limit = id == 0 ? mockItems : PER_FETCH_ITEMS + id
-    for (; id < limit && id < rawTotalItems; ++id) {
+    const chunkLimit = id == 0 ? mockItems : PER_FETCH_ITEMS + id
+    const omegaLimit = rawTotalItems == 0 ? mockItems : rawTotalItems
+    console.debug({ fetchStartId: id, omegaLimit, chunkLimit, rawTotalItems })
+    for (; id < chunkLimit && id < omegaLimit; ++id) {
       // Yield item id to render mock-ish component
       if (!status.inStore[id]) {
         onItemId(id)
