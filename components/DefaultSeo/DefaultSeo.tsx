@@ -1,12 +1,15 @@
 import { NextSeo } from "next-seo"
 
-export const SEO = {
+const URL = "https://jeshejojo.vercel.app"
+export const DEFAULT_CONFIG = {
   title: "Jeshejojo",
-  url: "https://jeshejojo.vercel.app",
+  url: URL,
+  seoURL: `${URL}/seo.png`,
   description: "Instagram-ish DApp to share your top level dad jokes 🦔",
 }
 
-function DefaultSeo() {
+function DefaultSeo(config: typeof DEFAULT_CONFIG) {
+  const SEO = config || DEFAULT_CONFIG
   return (
     <NextSeo
       title={SEO.title}
@@ -29,10 +32,10 @@ function DefaultSeo() {
         description: SEO.description,
         images: [
           {
-            url: `${SEO.url}/seo.png`,
+            url: SEO.seoURL,
+            alt: SEO.seoURL,
             width: 1200,
             height: 630,
-            alt: SEO.url,
           },
         ],
       }}
