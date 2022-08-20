@@ -19,10 +19,7 @@ export default function SingleItemId({ staticInfo }) {
       {staticInfo && (
         <DefaultSeo
           url={`${BASE_URL}/id/${id}`}
-          seoURL={`${BASE_URL}/api/seo-image/${staticInfo.bgColor.replace(
-            "#",
-            ""
-          )}`}
+          seoURL={getImageURL(staticInfo)}
           title={`${id} | ${staticInfo.content}`}
           description={`Content: ${staticInfo.content}`}
         />
@@ -31,6 +28,14 @@ export default function SingleItemId({ staticInfo }) {
       <Footer />
     </div>
   )
+}
+
+function getImageURL(staticInfo = {}) {
+  const fc = (color) => color.replace("#", "")
+
+  const { bgColor, textColor, author } = staticInfo
+  const IMAGE = `${BASE_URL}/api/seo-image/${author}`
+  return `${IMAGE}?bgColor=${fc(bgColor)}&textColor=${fc(textColor)}`
 }
 
 export async function getStaticProps({ params }) {
@@ -48,12 +53,12 @@ export async function getStaticProps({ params }) {
 }
 
 export async function getStaticPaths() {
+  const totalItems = (await MeinJokes.totalItems()).toNumber()
+  const paths = [...new Array(totalItems)].map((_, id) => ({
+    params: { id: `${id}` },
+  }))
   return {
-    paths: [
-      { params: { id: "0" } },
-      { params: { id: "1" } },
-      { params: { id: "2" } },
-    ],
+    paths,
     fallback: true,
   }
 }
