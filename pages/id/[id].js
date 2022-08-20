@@ -21,7 +21,7 @@ export default function SingleItemId({ staticInfo }) {
           url={`${BASE_URL}/id/${id}`}
           seoURL={getImageURL(staticInfo)}
           title={`${id} | ${staticInfo.content}`}
-          description={`Content: ${staticInfo.content}`}
+          description={`Jeshejojo #${id}`}
         />
       )}
       <FeedContainer>{id && <Jeshe id={id} />}</FeedContainer>
