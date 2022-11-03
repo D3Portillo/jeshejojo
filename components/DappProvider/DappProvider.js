@@ -6,12 +6,17 @@ import { publicProvider } from "wagmi/providers/public"
 import { isDevEnv } from "@/lib/helpers"
 
 const IS_DEV = isDevEnv()
+const API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_KEY
 export const { chains, provider, webSocketProvider } = configureChains(
-  [chain.goerli, ...(IS_DEV ? [chain.hardhat] : [/** chain.mainnet, chain.polygon */ ])],
   [
-    alchemyProvider({ alchemyId: process.env.AlCHEMY_API_KEY }),
-    publicProvider(),
-  ]
+    chain.goerli,
+    ...(IS_DEV
+      ? [chain.hardhat]
+      : [
+          /** chain.mainnet, chain.polygon */
+        ]),
+  ],
+  [alchemyProvider({ alchemyId: API_KEY }), publicProvider()]
 )
 
 const { connectors } = getDefaultWallets({
