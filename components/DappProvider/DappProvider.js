@@ -7,7 +7,7 @@ import { isDevEnv } from "@/lib/helpers"
 
 const IS_DEV = isDevEnv()
 const API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_KEY
-export const { chains, provider, webSocketProvider } = configureChains(
+export const { chains, provider } = configureChains(
   [
     chain.goerli,
     ...(IS_DEV
@@ -28,7 +28,6 @@ const wagmiClient = createClient({
   autoConnect: true,
   connectors,
   provider,
-  webSocketProvider,
 })
 
 function DappProvider({ children = null }) {
